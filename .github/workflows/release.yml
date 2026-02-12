@@ -20,6 +20,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: generate changelog
+        run: |
+          echo "## What's Changed" >> CHANGELOG.md
+          git log --pretty=format:'- %s by @%an' --grep '^(. )?(fix|feat|perf|sync)(\(.+\))?:' -E $(git describe --tags --abbrev=0 ${{ github.ref_name }}^)..${{ github.ref_name }} >> CHANGELOG.md
+          echo -e '\n\n**Full Changelog**: https://github.com/${{ github.repository }}/compare/'$(git describe --tags --abbrev=0 ${{ github.ref_name }}^)'...${{ github.ref_name }}' >> CHANGELOG.md
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
@@ -38,3 +45,4 @@ jobs:
       - uses: ncipollo/release-action@v1
         with:
           artifacts: 'plugin/hook-vue-${{ github.ref_name }}.zip'
+          bodyFile: 'CHANGELOG.md'
