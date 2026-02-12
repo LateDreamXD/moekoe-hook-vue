@@ -6,8 +6,12 @@ function recordComponent(component) {
 	while (!(element instanceof HTMLElement)) {
 		element = element.parentElement;
 	}
-	element.__vue__ = element.__vue__ || [];
-	element.__vue__.push(component);
+	logger.debug('bind to attr', component, element);
+	if(element.__vue__) {
+		if(Array.isArray(element.__vue__)) {
+			element.__vue__.push(component);
+		} else element.__vue__ = [element.__vue__, component];
+	} else element.__vue__ = component;
 }
 
 
@@ -22,6 +26,7 @@ function listenComponentMount(component) {
 				hooked = true;
 				listenComponentUnmount(component);
 				recordComponent(component);
+				logger.debug('comp mounted', component);
 				window.dispatchEvent(new CustomEvent('hook-vue:component_mount', { detail: component }));
 			}
 		}
@@ -38,6 +43,7 @@ function listenComponentUnmount(component) {
 			value = newValue;
 			if (!unhooked && value) {
 				unhooked = true;
+				logger.debug('comp unmounted', component);
 				window.dispatchEvent(new CustomEvent('hook-vue:component_unmount', { detail: component }));
 			}
 		}
@@ -48,10 +54,11 @@ function listenComponentUnmount(component) {
 function proxyProxy(func) {
 	return new Proxy(func, {
 		construct(target, argArray, newTarget) {
+			logger.debug('new call', argArray);
 			const component = argArray[0]?._;
 			const hasValidUid = component?.uid >= 0;
 			if (hasValidUid) {
-				const element = component.vnode?.el;
+				const element = component._vnode?.el;
 				if (element) {
 					listenComponentUnmount(component);
 					recordComponent(component);
