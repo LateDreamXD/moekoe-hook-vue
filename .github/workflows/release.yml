@@ -1,0 +1,40 @@
+name: Release
+
+on:
+  push:
+    tags: [ 'v*' ]
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build and release
+    strategy:
+      matrix:
+        node: [ lts/* ]
+        os: [ ubuntu-latest ]
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          cache: 'npm'
+          node-version: ${{ matrix.node }}
+      - name: Install dependencies and build
+        run: |
+          npm install
+          npm run build
+          cp LICENSE dist/LICENSE
+      - uses: TheDoctor0/zip-release@0.7.6
+        with:
+          directory: dist
+          filename: 'chrome-extension-${{ github.ref_name }}.zip'
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: 'dist/chrome-extension-${{ github.ref_name }}.zip'
+          draft: true
+          name: 'Chrome Extension ${{ github.ref_name }}'
