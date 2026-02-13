@@ -33,16 +33,30 @@ jobs:
       - name: Install dependencies and build
         run: |
           npm install
+          # build for production
           npm run build
           cp LICENSE dist/LICENSE
           mkdir plugin
           mkdir plugin/hook-vue
           mv dist/* plugin/hook-vue
+          # build for development
+          npm run build:debug
+          npm run postbuild
+          cp LICENSE dist/LICENSE
+          mkdir plugin-debug
+          mkdir plugin-debug/hook-vue
+          mv dist/* plugin-debug/hook-vue
       - uses: TheDoctor0/zip-release@0.7.6
         with:
           directory: plugin
           filename: 'hook-vue-${{ github.ref_name }}.zip'
+      - uses: TheDoctor0/zip-release@0.7.6
+        with:
+          directory: plugin-debug
+          filename: 'hook-vue-${{ github.ref_name }}-debug.zip'
       - uses: ncipollo/release-action@v1
         with:
-          artifacts: 'plugin/hook-vue-${{ github.ref_name }}.zip'
+          artifacts: |
+            'plugin/hook-vue-${{ github.ref_name }}.zip'
+            'plugin-debug/hook-vue-${{ github.ref_name }}-debug.zip'
           bodyFile: 'CHANGELOG.md'
