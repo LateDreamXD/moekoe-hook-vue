@@ -7,7 +7,6 @@
   "scripts": {
     "dev": "vite",
     "build": "tsdown",
-    "build:debug": "cross-env NODE_ENV=development tsdown",
     "postbuild": "node --experimental-strip-types .bin/postbuild.ts"
   },
   "author": "LateDream",
@@ -15,7 +14,6 @@
   "devDependencies": {
     "@types/node": "^25.0.3",
     "chrome-types": "^0.1.401",
-    "cross-env": "^10.1.0",
     "tsdown": "^0.18.1",
     "typescript": "^5.9.3",
     "unplugin-vue": "^7.1.1",
