@@ -8,9 +8,11 @@ function recordComponent(component) {
 	}
 	logger.debug('bind to attr', component, element);
 	if(element.__vue__) {
-		if(Array.isArray(element.__vue__)) {
-			element.__vue__.push(component);
-		} else element.__vue__ = [element.__vue__, component];
+		if(element.__vue__ === component) return;
+		else {
+			element.__vue_comps__ = element.__vue_comps__ || [];
+			element.__vue_comps__.push(component);
+		}
 	} else element.__vue__ = component;
 }
 
